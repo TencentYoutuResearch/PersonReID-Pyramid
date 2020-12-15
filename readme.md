@@ -15,11 +15,17 @@ If you find this code useful in your research, please consider citing:
 
 ## Requirements
 scipy>=1.0.0
+ 
 torch>=0.4.0
+ 
 mock>=2.0.0
+ 
 torchvision>=0.2.1
+
 numpy>=1.14.0
+
 Pillow>=5.0.0
+
 scikit_learn>=0.18
 
 ## Training
