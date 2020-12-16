@@ -21,9 +21,9 @@ If you are interested in this work, please cite our paper
 ```
 
 ### Performance
-<img src="figures/performance0.JPG" height="400" />
-<img src="figures/performance1.JPG" height="250" />
-<img src="figures/performance2.JPG" height="250" />
+<img src="figures/performance0.JPG" height="500" />
+<img src="figures/performance1.JPG" height="300" />
+<img src="figures/performance2.JPG" height="300" />
 
 ### Qualitative Results
 <img src="figures/demo.png" height="400" />
