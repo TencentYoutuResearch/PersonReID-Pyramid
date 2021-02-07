@@ -52,5 +52,5 @@ git clone https://github.com/TencentYoutuResearch/PersonReID-Pyramid.git
 2. Sample running command under the same directory of this readme file:
     python src/train.py --root \<dataset directory\> --data_loader \<Name of the dataloader module\>
 
-
-
+### Pretrain Models
+You can download weights in [here](https://drive.google.com/drive/folders/1-xjbe7iJ8d-d2HC1KYuQqOwFQbaqAGwg).
