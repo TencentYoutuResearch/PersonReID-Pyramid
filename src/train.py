@@ -75,6 +75,8 @@ def run():
                                       train_dataset, batch_image=batch_image),
                                   batch_size=batch_id * batch_image)
     # num_workers=num_workers)
+    train_loader_all = DataLoader(
+        train_dataset, batch_size=batch_train, shuffle=True, drop_last=True)
 
     query_dataset = Dataset(root + '/query', transform=test_transform)
     query_loader = DataLoader(
@@ -118,53 +120,39 @@ def run():
     max_mAP = 0
     m_ap = 0
 
-    k_id = 0.0
-    k_tri = 0.0
-    loss_alpha = 0.25
-    loss_sigma = 0.16
-    loss_gamma = 2.0
-    first_step = True
-
     for epoch in range(epochs):
         model_w.train()
         scheduler.step()
-        train_loader = train_loader_tri
+
+        if epoch > refine_ep and epoch % 2 == 1:
+            train_loader = train_loader_tri
+        else:
+            train_loader = train_loader_all
 
         running_loss = 0.0
         for i, data in enumerate(train_loader):
             inputs, labels = data
+            # print(inputs)
+            # print(labels)
             inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
 
             feats_list, logits_list = model_w(inputs)
 
             loss1 = torch.stack([criterion(logits, labels)
                                  for logits in logits_list], dim=0).sum()
+            #sum([criterion(logits, labels) for logits in logits_list])
+            #loss2 = sum([triplet_semihard_loss(feats, labels) for feats in feats_list])
 
             loss2 = torch.stack([triplet_loss(feats, labels)
                                  for feats in feats_list]).sum()
-
-            new_k_id = loss_alpha * loss1.item() + (1.0 - loss_alpha) * k_id
-            new_k_tri = loss_alpha * loss2.item() + (1.0 - loss_alpha) * k_tri
-
-            if first_step:
-                p_id = 0.5
-                p_tri = 0.5
-                first_step = False
-            else:
-                p_id = min(new_k_id, k_id) / k_id
-                p_tri = min(new_k_tri, k_tri) / k_tri
-
-            fl_id = - ( 1.0 - p_id) ** loss_gamma * np.log(p_id)
-            fl_tri = - ( 1.0 - p_tri) ** loss_gamma * np.log(p_tri)
-            k_id = new_k_id
-            k_tri = new_k_tri
-
-            if fl_tri / fl_id < loss_sigma:
-                loss = loss1
-            else:
-                loss = loss1 + loss2
+            #sum([triplet_loss(feats, labels) for feats in feats_list[6:]])
 
             optimizer.zero_grad()
+            if epoch > refine_ep and epoch % 2 == 1:
+                loss = loss1 + para_balance * loss2  # loss1 # + 0.1* loss2
+            else:
+                loss = loss1
+            #loss = loss2
             loss.backward()
 
             optimizer.step()
